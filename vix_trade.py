@@ -8,7 +8,7 @@ def vix_trade():
     
     robinhood = robingateway()
 
-    vix_trade = vix_dayroll_trade(robinhood,initial= 800)
+    vix_trade = vix_dayroll_trade(robinhood,initial= 1500)
 
     vix_trade.trade_action()
     
