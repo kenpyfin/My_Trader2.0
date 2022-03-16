@@ -43,11 +43,18 @@ def vix_trade():
                     log_trade(i,-log["size"].sum(), realtimequote(i)["price"].iloc[0], strategy_name)
                     send_email(body_html="",body_content="", title = "vix_dayroll Cut Losses")
 
-            elif ((realtimequote(i)["price"].iloc[0]- cost)/cost) > trading_param["VIX_harvest"]:
+            elif ((realtimequote(i)["price"].iloc[0] - cost)/cost) > trading_param["VIX_harvest"]:
 
                 if robinhood.place_sell_bulk_checkup(ticker_list=[i],quantity_list=[log["size"].sum()])== "Trade Success!":
                     log_trade(i,-log["size"].sum(), realtimequote(i)["price"].iloc[0], strategy_name)
                     send_email(body_html="",body_content="", title = "vix_dayroll Harvast Profit")
+
+            elif datetime.now(tzz) - log.TimeStamp.iloc[-1].replace(tzinfo=tzz) >= timedelta(days=trading_param["manual_timeout_days"]):
+
+                if robinhood.place_sell_bulk_checkup(ticker_list=[i],quantity_list=[log["size"].sum()])== "Trade Success!":
+                    log_trade(i,-log["size"].sum(), realtimequote(i)["price"].iloc[0], strategy_name)
+                    send_email(body_html="",body_content="", title = "vix_dayroll Timeout")
+
         time.sleep(10)
         
 ########################
