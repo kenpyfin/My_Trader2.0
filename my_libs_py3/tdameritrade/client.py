@@ -133,6 +133,21 @@ class TDClient(object):
             account_dataframes[-1].columns = [c.replace('securitiesAccount.', '') for c in account_dataframes[-1].columns]
         return pd.concat(account_dataframes)
 
+    
+    def current_positions(self):
+        my_position = []
+        for i in my_position_json:
+            new = {}
+            if i["shortQuantity"]>0:
+                new["quantity"] = i["shortQuantity"]
+            elif i["longQuantity"]>0:
+                new["quantity"] = i["longQuantity"]
+            new["marketValue"] = i["marketValue"]
+            new["maintenanceRequirement"] = i["maintenanceRequirement"]
+            new["symbol"]=i["instrument"]["symbol"]
+            my_position.append(new)
+        return pd.DataFrame(my_position)
+    
     def transactions(self, accountId=None, type=None, symbol=None, startDate=None, endDate=None):
         '''get transactions by account
 
