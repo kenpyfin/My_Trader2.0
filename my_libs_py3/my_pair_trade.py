@@ -3,7 +3,7 @@ from .my_strategies import *
 from .option import *
 from .send_email import *
 from .fmp import *
-from .tdameritrade import *
+from .TD_Order import *
 
 
 
