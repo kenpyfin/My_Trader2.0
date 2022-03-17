@@ -78,9 +78,7 @@ def fix_unsettled_trade_update(ticker, size=0, partial=False):
         mongod = mongo("trade_log",ticker)
         
         mongod.conn.table.update_one({"TimeStamp":ID},{"$set":{"size":0}})
-        
 
-           
     elif size == 0:
         print ("Please enter size for partial size fix") 
     else:
@@ -136,16 +134,6 @@ def is_open(ticker):
     else:
         return True
 
-def fix_unsettled_trade(ticker, size=0, partial=False):
-    if not partial:
-        log = get_trade_log(ticker)
-        log_trade(ticker,-log.iloc[-1]["size"],log.iloc[-1]["Price"],log.iloc[-1]["Strategy"])
-    elif size == 0:
-        print ("Please enter size for partial size fix") 
-    else:
-        log_trade(ticker,-(log.iloc[-1]["size"]-size),log.iloc[-1]["Price"],log.iloc[-1]["Strategy"])    
-
-        
 def get_open_opsition(database = "trade_log", stratgy_filter = None): 
     mongod = mongo(database)
     working = mongod.conn.db.list_collection_names()
@@ -184,15 +172,15 @@ def get_pair_open_opsition(database = "pair_trade_log"):
    
     return sent   
 
-def get_pair_trade_log(ticker_combo,database = "pair_trade_log"): 
-    
+def get_pair_trade_log(ticker_combo,database = "pair_trade_log"):
+
     mongod = mongo(database,ticker_combo)
     try:
-        result = pd.DataFrame(mongod.conn.table.find().sort("TimeStamp",-1)) 
+        result = pd.DataFrame(mongod.conn.table.find().sort("TimeStamp",-1))
     except Exception as e:
         print (e)
         result = pd.DataFrame()
-    return result 
+    return result
 
 
 def log_pair_trade(ticker1,ticker2,size1,size2, price1,price2 , database = "pair_trade_log"):

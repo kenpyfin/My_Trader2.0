@@ -140,7 +140,7 @@ class TDClient(object):
         for i in my_position_json:
             new = {}
             if i["shortQuantity"]>0:
-                new["quantity"] = i["shortQuantity"]
+                new["quantity"] = -i["shortQuantity"]
             elif i["longQuantity"]>0:
                 new["quantity"] = i["longQuantity"]
             new["marketValue"] = i["marketValue"]
