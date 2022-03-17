@@ -1,6 +1,7 @@
 from .my_lib import *
 from .my_strategies import *
 from .my_trader import *
+from .my_pair_trade import *
 # from .mysql import *
 from .pyfin import *
 from .Robinhood import *

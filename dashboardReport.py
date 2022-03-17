@@ -15,8 +15,6 @@ def fix_unsettel_trade():
 
     robinhood = robingateway()
 
-
-
     try:
 
         log_pos = get_open_opsition()
@@ -36,6 +34,15 @@ def fix_unsettel_trade():
 
     except Exception as e:
         send_email("Fixed unsettled trade Fail\n" + str(e))
+
+
+    try:
+        pos = pair_trade_log.get_pair_open_opsition()
+        for tickers in pos:
+            log = pair_trade_log(tickers[0],tickers[1])
+            log.fix_unsettle_trade()
+    except Exception as e:
+        send_email("Fixed unsettled pair trade Fail\n" + str(e))
 
     
     
