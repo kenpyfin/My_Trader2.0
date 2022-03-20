@@ -19,15 +19,19 @@ def fix_unsettel_trade():
         temp = robinhood.get_my_positions()
         pos_frame = pd.DataFrame([temp[0],temp[1]]).transpose()
         pos_frame.columns = ["Ticker","Shares"]
+
         #     act_pos = robinhood.get_my_positions()[0]
         note = ""
         for i in log_pos:
+            current_pos = pos_frame.loc[pos_frame.Ticker == i, "Shares"].iloc[0]
             if i not in pos_frame.Ticker.to_list():
         #             note += ("fix "+ i +"\n")
-                fix_unsettled_trade_update(i)
+                fix_unsettled_trade_update(i,0)
+                print("Fixed unsettled trade to size 0 " + str(i))
                 send_email("Fixed unsettled trade to size 0 " + str(i))
-            elif get_trade_log(i)["size"].sum() != pos_frame.loc[pos_frame.Ticker == i,"Shares"].iloc[0]:
-                fix_unsettled_trade_update(i, size=pos_frame.loc[pos_frame.Ticker == i,"Shares"].iloc[0], partial=True)
+            elif get_trade_log(i)["size"].sum() != current_pos:
+                fix_unsettled_trade_update(i,current_pos)
+                print("Fixed unsettled trade to match size " + str(i))
                 send_email("Fixed unsettled trade to match size " + str(i))
 
     except Exception as e:

@@ -69,22 +69,18 @@ def fwd_return(ticker,riskless_rate=0,mat = 1,val_num_steps = 30,val_num_paths =
     return np.log(fprice/spot)
 
 
-def fix_unsettled_trade_update(ticker, size=0, partial=False):
+def fix_unsettled_trade_update(ticker, target_size):
     log = get_trade_log(ticker)
     if len(log)== 0:
-        return
-    ID = get_trade_log(ticker).iloc[-1]["TimeStamp"]
-    if not partial:
-        mongod = mongo("trade_log",ticker)
-        
-        mongod.conn.table.update_one({"TimeStamp":ID},{"$set":{"size":0}})
+        return None
+    ID = log.iloc[-1]["TimeStamp"]
+    last_size = log.iloc[-1]["size"]
+    sum_size = log["size"].sum()
+    diff = target_size - sum_size
 
-    elif size == 0:
-        print ("Please enter size for partial size fix") 
-    else:
-        mongod = mongo("trade_log",ticker)
-        
-        mongod.conn.table.update_one({"TimeStamp":ID},{"$set":{"size":size}})
+    mongod = mongo("trade_log",ticker)
+    mongod.conn.table.update_one({"TimeStamp":ID},{"$set":{"size":last_size+diff}})
+
 
     
     
