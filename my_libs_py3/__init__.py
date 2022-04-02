@@ -12,5 +12,5 @@ from .option import *
 from .fmp import *
 from .tdameritrade import *
 from .TD_Order import *
-pd.set_option("display.max_columns",50)
+pd.set_option("display.max_columns",80)
 
