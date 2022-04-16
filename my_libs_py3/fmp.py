@@ -1,13 +1,12 @@
 from urllib.request import urlopen
 import pandas as pd
 import requests as r
-
+from datetime import datetime, timedelta
 
 api_key = 'f49024a02ed51582a55c94a9485223c7'
 url_root = 'https://fmpcloud.io/api/v3/'
 # url_root = 'https://financialmodelingprep.com/api/v3/'
 # api_key = '33cce9faf750236e31fb00b145d1e658'
-
   
 def get_urlroot():
 
@@ -21,6 +20,11 @@ def get_apikey():
 
     return api_key
 
+def latest_trading_date(today = datetime.now()):
+    while len(industry_pe(today,"NYSE"))==0:
+        today -= timedelta(days=1)
+        latest_trading_date(today)
+    return today
 
 def all_stock_list():
     
@@ -37,7 +41,37 @@ def all_stock_list():
     cantrade = cantrade.dropna(subset=["exchange"])
     return cantrade
 
+def sector_pe(date: datetime, exchange):
+    if exchange not in ['AMEX', 'NASDAQ', 'NYSE']:
+        raise Exception("select from 'AMEX', 'NASDAQ', 'NYSE'")
+    urlroot = "https://fmpcloud.io/api/v4/"
+    apikey = get_apikey()
+    date = date.strftime("%Y-%m-%d")
+    url = f"{urlroot}sector_price_earning_ratio?date={date}&exchange={exchange}&apikey={apikey}"
+    # print(url)
+    response = urlopen(url)
+    data = response.read().decode("utf-8")
+    return safe_read_json(data)
 
+def industry_pe(date: datetime, exchange):
+    if exchange not in ['AMEX', 'NASDAQ', 'NYSE']:
+        raise Exception("select from 'AMEX', 'NASDAQ', 'NYSE'")
+    urlroot = "https://fmpcloud.io/api/v4/"
+    apikey = get_apikey()
+    date = date.strftime("%Y-%m-%d")
+    url = f"{urlroot}industry_price_earning_ratio?date={date}&exchange={exchange}&apikey={apikey}"
+    # print(url)
+    response = urlopen(url)
+    data = response.read().decode("utf-8")
+    return safe_read_json(data)
+
+def stock_peer(ticker):
+    urlroot = "https://fmpcloud.io/api/v4/"
+    apikey = get_apikey()
+    url = f"{urlroot}stock_peers?symbol={ticker}&apikey={apikey}"
+    response = urlopen(url)
+    data = response.read().decode("utf-8")
+    return safe_read_json(data)["peersList"][0]
 
 def realtimequote(ticker):
     url = url_root + "quote/{}".format(ticker.upper())
@@ -47,6 +81,33 @@ def realtimequote(ticker):
     }
     return pd.DataFrame( r.get(url, params = payload).json())
 #     return pd.DataFrame( r.get(url).json())
+
+
+def tradable_tickers(exchange = ['New York Stock Exchange Arca','NASDAQ Global Select','New York Stock Exchange','NASDAQ Capital Market','American Stock Exchange','Nasdaq Capital Market','Nasdaq',]):
+   
+    urlroot = get_urlroot()
+    apikey = get_apikey()
+    typeurl = 'available-traded/'
+
+        
+    url = urlroot + typeurl + "list" + "?" +  "&apikey=" + apikey
+    response = urlopen(url)
+    data = response.read().decode("utf-8")
+    data = safe_read_json(data)
+    data = data[data.exchange.isin(exchange)]
+    return data.reset_index()
+
+def earning_calendar(ticker):
+   
+    urlroot = get_urlroot()
+    apikey = get_apikey()
+    typeurl = 'earning_calendar/'
+
+        
+    url = urlroot + "historical/" + typeurl + ticker.upper() + "?" + "datatype=json" +  "&apikey=" + apikey
+    response = urlopen(url)
+    data = response.read().decode("utf-8")
+    return safe_read_json(data)
 
 def rss_feed():
     """RSS Feed API from https://fmpcloud.io/documentation#rssFeed
@@ -392,7 +453,7 @@ def safe_read_json(data):
         try:    
             result.date = result.date.apply(lambda x: x[:10])
         except:
-            print ("Cannot convert datetime to date")
+            # print ("Cannot convert datetime to date")
             pass
         result = pd.read_json(data)
         

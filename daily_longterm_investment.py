@@ -88,11 +88,16 @@ def daily_longterm_investment():
         if robinhood.get_buying_power() > cash_reserve:
             for i in target_list:
 
-                price = get_price_data([i],method = 'day',back_day=14)
-
+                # look back on which time period
+                price_14 = get_price_data([i],method = 'day',back_day=14)
+                price_31 = get_price_data([i],method = 'day',back_day=31)
+                price_60 = get_price_data([i],method = 'day',back_day=60)
+                price_180 = get_price_data([i],method = 'day',back_day=180)
+                
                 quote = realtimequote(i).price.iloc[0]
                 size = np.ceil(money/quote)
-                if quote < price.Close.mean():
+                # buy on low or buy on high
+                if quote < price_14.Close.mean() and quote > price_31.Close.mean() and quote > price_60.Close.mean():
                     if robinhood.place_buy_bulk_checkup(ticker_list=[i],quantity_list=[size],skip_check= True) == "Trade Success!":
                         log_trade(i,size, robinhood.get_last_price(i), strategy_name)
                         send_email("Fundamental Cumulation Buy: %s"%i)

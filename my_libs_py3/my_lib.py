@@ -1909,33 +1909,7 @@ class mongo:
         except:
             print ("Connection Failed")
 
-#     def get_ondemand_quote(self,sym):
-#         api_key = 'b59b144a62e058b6c4e265c049dc679f'
-#         sym = "%2C".join(sym)
-#         # This is the required format for datetimes to access the API
 
-#         api_url = 'https://marketdata.websol.barchart.com/getQuote.csv?' +\
-#                         'apikey={}&symbols={}&mode=D'\
-#                              .format(api_key,sym)
-
-#         csvfile = pd.read_csv(api_url)
-#         csvfile = csvfile.rename(columns={"symbol":"Ticker","serverTimestamp":"TimeStamp",\
-#                            "open":"Open","high":"High","low":"Low","close":"Close",\
-#                            "volume":"Volume","lastPrice":"Adj Close","netChange":"net_Return","percentChange":"Return"})
-#         #csvfile.set_index('timestamp', inplace=True)
-#         return csvfile
-
-    def get_all_quote(self):
-        result = pd.DataFrame()
-        all_stock_1 = pd.read_csv(directory + self.stock_list)
-        all_stock_2 = pd.read_csv(directory + self.ETF_list)
-        all_stock_2 = all_stock_2.rename(columns={"Symbol":"Ticker"})
-        all_stock = all_stock_1.append(all_stock_2)
-        all_stock = all_stock.reset_index()
-        for i in range(99,len(all_stock),100):
-            tic_list = all_stock.Ticker.iloc[i-99:i].astype(str)
-            result = result.append(self.get_ondemand_quote(tic_list))   
-        return result
 
     def query_database(self,stock, start_date = datetime.now()-timedelta(days =200),end_date=datetime.now()+timedelta(days = 1)):
         

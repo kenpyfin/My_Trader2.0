@@ -504,7 +504,12 @@ def my_trading_param():
           fundamental_money = trading_param["fundamental_money"],
           fundamental_harvest = trading_param["fundamental_harvest"],
           fundamental_harvest_prop = trading_param["fundamental_harvest_prop"],
-                             
+          longterm_target_ticker = ",".join(trading_param["longterm_target_ticker"]),
+          longterm_bench_money = trading_param["longterm_bench_money"],
+          longterm_bench_money_increase_factor = trading_param["longterm_bench_money_increase_factor"],
+          longterm_bench_money_decrease_factor = trading_param["longterm_bench_money_decrease_factor"],
+          longterm_harvest_prop = trading_param["longterm_harvest_prop"],
+          longterm_harvest = trading_param["longterm_harvest"],
                              )
 
 
@@ -562,6 +567,20 @@ def set_trading_param():
         trading_param["fundamental_harvest"]=float(fl.request.form["fundamental_harvest"])
         
         trading_param["fundamental_harvest_prop"]=float(fl.request.form["fundamental_harvest_prop"])
+        
+        trading_param["longterm_target_ticker"]=fl.request.form["longterm_target_ticker"].split(",")
+        
+        trading_param["longterm_bench_money"]=float(fl.request.form["longterm_bench_money"])
+        
+        trading_param["longterm_bench_money_increase_factor"]=float(fl.request.form["longterm_bench_money_increase_factor"])
+        
+        trading_param["longterm_bench_money_decrease_factor"]=float(fl.request.form["longterm_bench_money_decrease_factor"])
+        
+        trading_param["longterm_harvest_prop"]=float(fl.request.form["longterm_harvest_prop"])
+        
+        trading_param["longterm_harvest"]=float(fl.request.form["longterm_harvest"])
+        
+        
         
         with open(directory + 'trading_param.json', 'w') as outfile:
             json.dump(trading_param, outfile)
