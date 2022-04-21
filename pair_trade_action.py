@@ -172,8 +172,6 @@ def flat_position_by_days(ticker1,ticker2,days=7):
 
 
 def pair_trade_action_main():
-    # sell check, sell if hold more than 7 days
-
 
 
     # buy check
