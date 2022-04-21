@@ -6,6 +6,11 @@ def record_not_shortable(ticker):
     mongod = mongo("all_symbol","td_not_shortable")
     mongod.conn.table.insert_one({"TimeStamp":datetime.now(),"symbol":ticker})
 
+def get_not_shortables():
+    mongod = mongo("all_symbol", "td_not_shortable")
+    not_shortables = pd.DataFrame(mongod.conn.table.find())
+    return list(set(not_shortables.symbol.to_list()))
+
 def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
     today_trade = self_pair_trade(ticker1,ticker2,method = "realtimeday",cash = cash).iloc[-1]
 
@@ -124,7 +129,8 @@ def pair_trade_smaple():
 
 def pair_trade_top():
     mongod = mongo("all_symbol","pair_trade_sharp_2021_500")
-    candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio":{"$exists":True}}))
+    candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio":{"$exists":True},
+                                                  "Ticker_1":{"$nin":get_not_shortables()},"Ticker_2":{"$nin":get_not_shortables()}}))
     top_return = candid.describe().loc["75%","Avg_Return"]
     top_sharp = candid.describe().loc["75%","Sharp_Ratio"]
 
