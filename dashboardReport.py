@@ -39,7 +39,7 @@ def fix_unsettel_trade():
 
 
     try:
-        pos = pair_trade_log.get_pair_open_opsition()
+        pos = pair_trade_log.get_pair_open_position()
         for tickers in pos:
             log = pair_trade_log(tickers[0],tickers[1])
             log.fix_unsettle_trade()

@@ -47,10 +47,10 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     send_email("Trade process done.",
                                title="!Important! Pair Trade Order Placed for %s and %s" % (ticker1, ticker2))
                 else:
-                    if not cancel_order(orderid):
-                        send_email("Please manually cancel order for %s",
-                                   title="!Important! Cancel Order Failed" % orderid)
-                    raise Exception("{ticker2} short not filled for {ticker1} and {ticker2}".format(ticker1=ticker1,
+                    # if not cancel_order(orderid):
+                    #     send_email("Please manually cancel order for %s",
+                    #                title="!Important! Cancel Order Failed" % orderid)
+                    raise Exception("{ticker2} not filled for {ticker1} and {ticker2}".format(ticker1=ticker1,
                                                                                                     ticker2=ticker2))
             elif trade_size2 == 0:
                 orderid = td_trade.place(ticker1, trade_size1)
@@ -59,10 +59,10 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     send_email("Trade process done.",
                                title="!Important! Pair Trade Order Placed for %s and %s" % (ticker1, ticker2))
                 else:
-                    if not cancel_order(orderid):
-                        send_email("Please manually cancel order for %s",
-                                   title="!Important! Cancel Order Failed" % orderid)
-                    raise Exception("{ticker1} short not filled for {ticker1} and {ticker2}".format(ticker1=ticker1,
+                    # if not cancel_order(orderid):
+                    #     send_email("Please manually cancel order for %s",
+                    #                title="!Important! Cancel Order Failed" % orderid)
+                    raise Exception("{ticker1} not filled for {ticker1} and {ticker2}".format(ticker1=ticker1,
                                                                                                     ticker2=ticker2))
             ## short ticker1
             elif trade_size1 < 0:

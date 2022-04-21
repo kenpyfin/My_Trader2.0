@@ -28,7 +28,7 @@ class pair_trade_log:
         mongod.conn.frame_to_mongo(upload_data)
 
     @staticmethod
-    def get_pair_open_opsition(database="pair_trade_log",split=True):
+    def get_pair_open_position(database="pair_trade_log",split=True):
         def get_pair_trade_log(ticker_combo, database="pair_trade_log"):
 
             mongod = mongo(database, ticker_combo)
