@@ -14,6 +14,8 @@ all_ticker = all_ticker[all_ticker.Volume > all_ticker.Volume.quantile(0.5)]
 all_ticker = all_ticker[all_ticker["Institutional Ownership"] > all_ticker["Institutional Ownership"].quantile(0.5)]
 all_ticker = all_ticker.drop("_id",axis=1)
 
+st.selectbox("Display Columns",)
+
 
 st.dataframe(all_ticker,height=500)
 
