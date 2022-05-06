@@ -82,30 +82,10 @@ def minute_beta():
     var_table_mins.columns = ["sv","Mins_VaR"]
     var_table_day.columns = ["sv","Day_VaR"]
     es_mins = var_table_mins["Mins_VaR"].mean()    
-    es_day = var_table_day["Day_VaR"].mean() 
-
-
-    # var_table = []
-    # for i in range(500,0,-5):
-    #     i = i/1000.0
-    #     var_table.append((i,robinhood.get_my_position_beta_minute(sv=i).Mins_VaR.sum()))
-    # var_table = pd.DataFrame(var_table)
-    # var_table.columns = ["sv","Mins_VaR"]
-    # es_mins = var_table["Mins_VaR"].mean()    
-
-
-
-    # var_table = []
-    # for i in range(500,0,-5):
-    #     i = i/1000.0
-    #     var_table.append((i,robinhood.get_my_position_beta_minute(sv=i).Day_VaR.sum()))
-    # var_table = pd.DataFrame(var_table)
-    # var_table.columns = ["sv","Day_VaR"]
-    # es_day = var_table["Day_VaR"].mean()   
-
-
-    ##############################################
-    # In[ ]:
+    es_day = var_table_day["Day_VaR"].mean()
+    mongod = mongo("all_symbol","var_es")
+    mongod.conn.table.insert_one({"var_mins":my_beta_mins.Mins_VaR.sum(),
+                                  "var_day":my_beta_mins.Day_VaR.sum(),"es_mins":es_mins,"es_day":es_day})
 
 
     html = my_beta_mins.style.set_table_attributes('border="1" class="dataframe table table-hover table-bordered"')
