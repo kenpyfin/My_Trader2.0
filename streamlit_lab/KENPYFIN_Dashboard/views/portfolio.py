@@ -19,35 +19,14 @@ async def pair_trade_top():
     return candid
 
 
-async def stats():
-    robinhood = robingateway()
-
-    hedge = robinhood.hedge()
-    mongod = mongo("all_symbol", "minute_beta")
-    tos = pd.DataFrame(mongod.conn.table.find({}, {"Refresh_Date": 1}).sort("Refresh_Date", -1).limit(1))[
-        "Refresh_Date"].iloc[0]
-    mb = pd.DataFrame(mongod.conn.table.find({"Refresh_Date": tos}))
-
-    ## ES Calculation
-    var_table_mins = []
-    var_table_day = []
-    for i in range(500, 0, -5):
-        i = i / 1000.0
-        beta_table = robinhood.get_my_position_beta_minute(sv=i)
-        var_table_mins.append((i, beta_table.Mins_VaR.sum()))
-        var_table_day.append((i, beta_table.Day_VaR.sum()))
-    var_table_mins = pd.DataFrame(var_table_mins)
-    var_table_day = pd.DataFrame(var_table_day)
-    var_table_mins.columns = ["sv", "Mins_VaR"]
-    var_table_day.columns = ["sv", "Day_VaR"]
-    es_mins = var_table_mins["Mins_VaR"].mean()
-    es_day = var_table_day["Day_VaR"].mean()
-    return mb, es_mins, es_day
 
 def load_view():
 
     st.title("Portfolio Stats")
-    my_beta_mins, es_mins, es_day = asyncio.run(stats())
+    mongod = mongo("all_symbol", "minute_beta")
+    tos = pd.DataFrame(mongod.conn.table.find({}, {"Refresh_Date": 1}).sort("Refresh_Date", -1).limit(1))[
+        "Refresh_Date"].iloc[0]
+    my_beta_mins = pd.DataFrame(mongod.conn.table.find({"Refresh_Date": tos}))
 
     st.dataframe(my_beta_mins)
     st.write("The sum Day VaR of this portfolio is {:.2f}".format((my_beta_mins.Day_VaR).sum()))
@@ -60,5 +39,4 @@ def load_view():
 
     candid = asyncio.run(pair_trade_top())
     st.dataframe(candid)
-
 

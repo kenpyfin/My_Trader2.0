@@ -85,7 +85,8 @@ def minute_beta():
     es_day = var_table_day["Day_VaR"].mean()
     mongod = mongo("all_symbol","var_es")
     mongod.conn.table.insert_one({"var_mins":my_beta_mins.Mins_VaR.sum(),
-                                  "var_day":my_beta_mins.Day_VaR.sum(),"es_mins":es_mins,"es_day":es_day})
+                                  "var_day":my_beta_mins.Day_VaR.sum(),
+                                  "es_mins":es_mins,"es_day":es_day, "Refresh_Date":datetime.now()})
 
 
     html = my_beta_mins.style.set_table_attributes('border="1" class="dataframe table table-hover table-bordered"')
