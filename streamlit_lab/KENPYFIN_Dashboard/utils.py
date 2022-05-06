@@ -3,10 +3,10 @@ import base64
 from streamlit.components.v1 import html
 
 from PATHS import NAVBAR_PATHS, SETTINGS
-
+PATH = "/home/ken/airflowProd/notebook/My_Trader/streamlit_lab/KENPYFIN_Dashboard/"
 
 def inject_custom_css():
-    with open('assets/styles.css') as f:
+    with open(PATH + 'assets/styles.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 
@@ -18,7 +18,7 @@ def get_current_route():
 
 
 def navbar_component():
-    with open("assets/images/settings.png", "rb") as image_file:
+    with open(PATH + "assets/images/settings.png", "rb") as image_file:
         image_as_base64 = base64.b64encode(image_file.read())
 
     navbar_items = ''

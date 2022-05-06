@@ -1,7 +1,7 @@
 NAVBAR_PATHS = {
     'SCREENER':'screener',
-    'ABOUT': 'about',
-    'ANALYSIS': 'analysis'
+    'PORTFOLIO': 'portfolio',
+    'MARKET': 'market'
 }
 
 SETTINGS = {

@@ -446,6 +446,14 @@ def stock_screener(mcgt = None, mclt = None, bgt = None, blt = None, divgt = Non
     data = response.read().decode("utf-8")
     return safe_read_json(data)
 
+def top_active():
+    url = f"https://fmpcloud.io/api/v3/actives?apikey={api_key}"
+    response = urlopen(url)
+    data = response.read().decode("utf-8")
+    return safe_read_json(data)
+
+
+
 def safe_read_json(data):
     if (data.find("Error Message") != -1):
         raise Exception(data[20:-3])    

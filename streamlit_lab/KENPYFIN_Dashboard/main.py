@@ -1,6 +1,6 @@
 import streamlit as st
 import utils as utl
-from views import screener,Portfolio,analysis,options,configuration
+from views import screener,portfolio,market,options,configuration
 
 
 
@@ -13,10 +13,10 @@ def navigation():
     route = utl.get_current_route()
     if route == "screener":
         screener.load_view()
-    elif route == "about":
-        about.load_view()
-    elif route == "analysis":
-        analysis.load_view()
+    elif route == "portfolio":
+        portfolio.load_view()
+    elif route == "market":
+        market.load_view()
     elif route == "options":
         options.load_view()
     elif route == "configuration":

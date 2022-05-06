@@ -25,3 +25,7 @@ ticker = st.text_input("Ticker you want to lookup", "AAPL")
 
 st.write( financial_statements_growth(ticker,"quarter"))
 
+
+
+
+
