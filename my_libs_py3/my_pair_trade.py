@@ -7,6 +7,7 @@ from .send_email import *
 from .fmp import *
 from .TD_Order import *
 from .my_trader import *
+from .habitica import habiticaImp
 
 
 
@@ -101,6 +102,7 @@ class pair_trade_log:
 
 
     def fix_unsettle_trade(self):
+        habitica = habiticaImp()
         open_position = client.current_positions()
         all_tickers = open_position.symbol.to_list()
         ID = self.last_trade_at
@@ -111,6 +113,7 @@ class pair_trade_log:
             self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
             print("Fixed unsettled pair trade to size 0 " + str(self.ticker1))
         else:
+            habitica.create_a_todo("Unmatch Size for pair trade " + str(self.ticker1))
             broker_quantity1 = float(open_position.loc[open_position.symbol == self.ticker1, "quantity"])
             ticker1_quantity = self.strategy_sizes[0]
             diff = ticker1_quantity - self.outstanding_shares_ticker1
@@ -127,6 +130,7 @@ class pair_trade_log:
             self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
             print("Fixed unsettled pair trade to size 0 " + str(self.ticker2))
         else:
+            habitica.create_a_todo("Unmatch Size for pair trade " + str(self.ticker2))
             broker_quantity2 = float(open_position.loc[open_position.symbol == self.ticker2, "quantity"])
             ticker2_quantity = self.strategy_sizes[1]
             diff = ticker2_quantity - self.previous_shares_ticker2
