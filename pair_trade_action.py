@@ -120,9 +120,9 @@ def pair_trade_sample():
     candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
 
     ## Not currently trading
-    openPosition = client.current_positions().symbol.to_list()
-    candid = candid[~candid.Ticker_1.isin(openPosition)]
-    candid = candid[~candid.Ticker_2.isin(openPosition)]
+    open_position = client.current_positions().symbol.to_list()
+    candid = candid[~candid.Ticker_1.isin(open_position)]
+    candid = candid[~candid.Ticker_2.isin(open_position)]
 
     return candid.reset_index(drop=True)
 
@@ -142,9 +142,9 @@ def pair_trade_top():
     candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
 
     ## Not currently trading
-    openPosition =  client.current_positions().symbol.to_list()
-    candid = candid[~candid.Ticker_1.isin(openPosition)]
-    candid = candid[~candid.Ticker_2.isin(openPosition)]
+    open_position =  client.current_positions().symbol.to_list()
+    candid = candid[~candid.Ticker_1.isin(open_position)]
+    candid = candid[~candid.Ticker_2.isin(open_position)]
 
     return candid.reset_index(drop=True)
 
