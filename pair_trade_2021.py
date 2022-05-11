@@ -8,7 +8,8 @@ warnings.filterwarnings("ignore")
 # Screen for candidate of momentum trade
 ########################
 
-LOG_DB = "pair_trade_sharp_2021_500"
+scan_cash = 500
+LOG_DB = f"pair_trade_sharp_2021_{scan_cash}"
 
 
 def pair_screen(ALL_TICKER, start,end):
@@ -25,7 +26,7 @@ def pair_screen(ALL_TICKER, start,end):
             continue
 
         try:
-            trade = self_pair_trade(i, j, cash=500)
+            trade = self_pair_trade(i, j, cash=scan_cash)
 
             end_value = trade.iloc[-1]["total_value"]
             max_return = round(np.log(trade["total_value"].shift(-1) / trade["total_value"]).max(), 4)
@@ -55,27 +56,10 @@ def main():
         tos = pd.DataFrame(mongod.conn.table.find({},{"Refresh_Date":1}).sort("Refresh_Date",-1).limit(1))["Refresh_Date"].iloc[0]
         ALL_TICKER = pd.DataFrame(mongod.conn.table.find({"Refresh_Date":tos}))
 
-
-        # ## Initialization
-        # mongod.conn.conn.cursor().execute("truncate table all_symbol.pair_trade_sharp")
-        # mongod.conn.conn.cursor().execute("truncate table all_symbol.pair_trade_screen_save")
-        # mongod.conn.conn.commit()
-
-
-        # ALL_TICKER = pd.DataFrame(mongod.db["cantrade"].find()).Ticker.tolist()
-        result = pd.DataFrame()
-
-
         ALL_TICKER = ALL_TICKER[ALL_TICKER.Volume > ALL_TICKER.Volume.quantile(0.5)]
         ALL_TICKER = ALL_TICKER[ALL_TICKER["Institutional Ownership"] > ALL_TICKER["Institutional Ownership"].quantile(0.5)]
 
         ALL_TICKER = ALL_TICKER.Ticker.to_list()
-
-        today = datetime.today().date()
-        robinhood = robingateway()
-        trade_scale = "day"
-        backdays = 80
-
 
         ## CP Id
         START = 0

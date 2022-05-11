@@ -1,6 +1,5 @@
 from .my_libs_py3 import *
 
-TRADE_CASH = 500
 
 def record_not_shortable(ticker):
     mongod = mongo("all_symbol","td_not_shortable")
@@ -104,14 +103,14 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
     except Exception as e:
         send_email(str(e),title="!Important! Pair Trade Place Order Error for {ticker1} and {ticker2}".format(ticker1=ticker1,ticker2=ticker2))
 
-def pair_trade_sample():
-    mongod = mongo("all_symbol","pair_trade_sharp_2021_500")
+def pair_trade_sample(scan_cash = TRADE_CASH):
+    mongod = mongo("all_symbol",f"pair_trade_sharp_2021_{scan_cash}")
     candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio":{"$exists":True}}))
     top_return = candid.describe().loc["75%","Avg_Return"]
     top_sharp = candid.describe().loc["75%","Sharp_Ratio"]
 
     pipeline = [
-        {"$match":{"End_Value":{"$gt":TRADE_CASH},"Sharp_Ratio":{"$gt":top_sharp},"Avg_Return":{"$gt":top_return}}},
+        {"$match":{"End_Value":{"$gt":scan_cash},"Sharp_Ratio":{"$gt":top_sharp},"Avg_Return":{"$gt":top_return}}},
         {"$sample":{"size":10}}
     ]
 
@@ -126,15 +125,15 @@ def pair_trade_sample():
 
     return candid.reset_index(drop=True)
 
-def pair_trade_top():
-    mongod = mongo("all_symbol", "pair_trade_sharp_2021_500")
+def pair_trade_top(scan_cash = TRADE_CASH):
+    mongod = mongo("all_symbol", f"pair_trade_sharp_2021_{scan_cash}")
     candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio": {"$exists": True},
                                                   "Ticker_1": {"$nin": get_not_shortables()},
                                                   "Ticker_2": {"$nin": get_not_shortables()}}))
     top_return = candid.describe().loc["75%", "Avg_Return"]
     top_sharp = candid.describe().loc["75%", "Sharp_Ratio"]
 
-    candid = pd.DataFrame(mongod.conn.table.find({"End_Value": {"$gt": 500},
+    candid = pd.DataFrame(mongod.conn.table.find({"End_Value": {"$gt": scan_cash},
                                                   "Sharp_Ratio": {"$gt": top_sharp},
                                                   "Avg_Return": {"$gt": top_return}}).sort("Sharp_Ratio", -1).limit(35))
     candid = candid.drop_duplicates("Ticker_1").drop_duplicates("Ticker_2")

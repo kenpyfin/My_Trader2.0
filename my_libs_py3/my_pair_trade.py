@@ -97,7 +97,7 @@ class pair_trade_log:
 
     @property
     def strategy_sizes(self):
-        recent_signal = self_pair_trade(self.ticker1, self.ticker2, method="realtimeday", cash=500)
+        recent_signal = self_pair_trade(self.ticker1, self.ticker2, method="realtimeday", cash=TRADE_CASH)
         return recent_signal[recent_signal["size1"] != 0].iloc[-1]["size1"], recent_signal[recent_signal["size2"] != 0].iloc[-1]["size2"]
 
 

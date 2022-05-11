@@ -25,49 +25,31 @@ import pprint
 from datetime import timedelta
 from scipy import stats
 import scipy
-# from pandas_datareader._utils import RemoteDataError
 import pymongo
 import requests as r
 from bs4 import BeautifulSoup as bs
-# import yahoo_finance
-# from yahoo_finance import Share
-# from pandas_datareader import data as pdr
-# import pandas_datareader as da
 from tqdm import tqdm
-# import backtrader as bt
 import urllib.request, urllib.error, urllib.parse
-# import datetools 
 # import multiprocessing
-import pymysql
-import sqlalchemy as sa
-from sqlalchemy import event
 from .fmp import *
 from .mysql import *
 import os
 
-############################################
 
-## Must use full path for CRONTAB to work
-
-############################################
-
-
+pd.set_option("display.max_columns",80)
 pd.options.display.float_format = '{:,.4f}'.format
 
 
 
-def read_json(filepath):
-    read = []
-    with open(filepath, "r") as f:
-        read.append(f.readlines())
-    read = "".join(read[0]).replace("\n"," ")
-    return json.loads(read)
+############################################
+
+## Must use full path for CRONTAB to work
+############################################
 
 if os.getcwd() == "/opt/airflow":
     home_dir="/opt/airflow/"
 else:
     home_dir = "/home/ken/airflowProd/"
-
 
 gecko_download_path = home_dir + "notebook/My_Trader/file/"
 gecko_path = "http://10.0.1.22:4444/wd/hub"
@@ -82,16 +64,25 @@ working_suggestion = "Trade_suggestion_minute_1st"
 universe_file_name = "my_universe_industry_sector_marketcap_earnings.csv"
 root_directory = home_dir + "notebook/My_Trader/"
 
+############################################
+#Read trading parameter
+############################################
+
+trading_param = read_json(directory+"trading_param.json")
+
+TRADE_CASH = 500  ## For pair trade
 
 ## Timezone
 mytz = pytz.timezone("US/Pacific")
 
-#Read trading parameter
 
 
-trading_param = read_json(directory+"trading_param.json")
-
-
+def read_json(filepath):
+    read = []
+    with open(filepath, "r") as f:
+        read.append(f.readlines())
+    read = "".join(read[0]).replace("\n"," ")
+    return json.loads(read)
 
 
 def read_mongo_time(x, timezone = "US/Pacific"):
