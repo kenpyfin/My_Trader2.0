@@ -120,7 +120,7 @@ class pair_trade_log:
 
             new = self.last_trade_shares_ticker1 + diff
             ## only update when broker size is smaller than the outstanding size, and update to strategy suggested size
-            if self.outstanding_shares_ticker1 != broker_quantity1 and self.outstanding_shares_ticker1 > broker_quantity1:
+            if self.outstanding_shares_ticker1 != broker_quantity1 and np.abs(self.outstanding_shares_ticker1) > np.abs(broker_quantity1):
                 self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
                 print("Fixed unsettled pair trade to match size " + str(self.ticker1))
 
@@ -137,7 +137,7 @@ class pair_trade_log:
 
             new = self.last_trade_shares_ticker2 + diff
             ## only update when broker size is smaller than the outstanding size, and update to strategy suggested size
-            if self.outstanding_shares_ticker2 != broker_quantity2 and self.outstanding_shares_ticker2 > broker_quantity2:
+            if self.outstanding_shares_ticker2 != broker_quantity2 and np.abs(self.outstanding_shares_ticker2) > np.abs(broker_quantity2):
                 self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
                 send_email("Fixed unsettled pair trade to match size " + str(self.ticker2))
         self.get_log()
