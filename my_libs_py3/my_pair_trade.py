@@ -1,9 +1,12 @@
+import pandas as pd
+
 from .my_lib import *
 from .my_strategies import *
 from .option import *
 from .send_email import *
 from .fmp import *
 from .TD_Order import *
+from .my_trader import *
 
 
 
@@ -23,7 +26,7 @@ class pair_trade_log:
         mongod = mongo(database, ticker)
 
         upload_data = pd.DataFrame([{"TimeStamp": timestamp, "Ticker1": ticker1, "Ticker2": ticker2, "size1": size1,
-                                     "size2": size2, "Price1": price1, "Price2": price2}])
+                                     "size2": size2, "Price1": price1, "Price2": price2, "strategy_size1":size1, "strategy_size2":size2}])
 
         mongod.conn.frame_to_mongo(upload_data)
 
@@ -54,13 +57,27 @@ class pair_trade_log:
 
     @property
     def last_trade_at(self):
-        return self._myLog.sort_values("TimeStamp",ascending=False).iloc[-1]["TimeStamp"]
+        if len(self._myLog) == 0:
+            return None
+        return self._myLog.sort_values("TimeStamp",ascending=True).iloc[-1]["TimeStamp"]
+
+    @property
+    def previous_shares_ticker1(self):
+        return self._myLog.sort_values("TimeStamp", ascending=True).iloc[:-1]["size1"].sum()
+
+    @property
+    def previous_shares_ticker2(self):
+        return self._myLog.sort_values("TimeStamp", ascending=True).iloc[:-1]["size2"].sum()
     @property
     def last_trade_shares_ticker1(self):
-        return self._myLog.sort_values("TimeStamp", ascending=False).iloc[-1]["size1"]
+        if len(self._myLog) == 0:
+            return 0
+        return self._myLog.sort_values("TimeStamp", ascending=True).iloc[-1]["size1"]
     @property
     def last_trade_shares_ticker2(self):
-        return self._myLog.sort_values("TimeStamp", ascending=False).iloc[-1]["size2"]
+        if len(self._myLog) == 0:
+            return 0
+        return self._myLog.sort_values("TimeStamp", ascending=True).iloc[-1]["size2"]
     @property
     def outstanding_shares_ticker1(self):
         return self._myLog["size1"].sum()
@@ -72,8 +89,16 @@ class pair_trade_log:
         self.tradeLog = mongo("pair_trade_log", self.ticker_combo)
         self._myLog = pd.DataFrame(self.tradeLog.conn.table.find())
         if len(self._myLog) == 0:
-            raise Exception(f"no pair trade log for {self.ticker1} and {self.ticker2}")
+            print(f"no pair trade log for {self.ticker1} and {self.ticker2}")
+            self._myLog = pd.DataFrame([],columns=['_id', 'TimeStamp', 'Ticker1', 'Ticker2', 'size1', 'size2', 'Price1',
+       'Price2'])
         return self._myLog
+
+    @property
+    def strategy_sizes(self):
+        recent_signal = self_pair_trade(self.ticker1, self.ticker2, method="realtimeday", cash=500)
+        return recent_signal[recent_signal["size1"] != 0].iloc[-1]["size1"], recent_signal[recent_signal["size2"] != 0].iloc[-1]["size2"]
+
 
     def fix_unsettle_trade(self):
         open_position = client.current_positions()
@@ -84,24 +109,27 @@ class pair_trade_log:
             diff = 0 - self.outstanding_shares_ticker1
             new = self.last_trade_shares_ticker1 + diff
             self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
-            send_email("Fixed unsettled pair trade to size 0 " + str(self.ticker1))
+            print("Fixed unsettled pair trade to size 0 " + str(self.ticker1))
         else:
-            ticker1_quantity = float(open_position.loc[open_position.symbol == self.ticker1, "quantity"])
-            diff = 0 - self.outstanding_shares_ticker1
+            # broker_quantity1 = float(open_position.loc[open_position.symbol == self.ticker1, "quantity"])
+            ticker1_quantity = self.strategy_sizes[0]
+            diff = ticker1_quantity - self.outstanding_shares_ticker1
             new = self.last_trade_shares_ticker1 + diff
             if self.outstanding_shares_ticker1 != ticker1_quantity:
                 self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
-                send_email("Fixed unsettled pair trade to match size " + str(self.ticker1))
+                print("Fixed unsettled pair trade to match size " + str(self.ticker1))
 
         if self.ticker2 not in all_tickers:
             diff = 0 - self.outstanding_shares_ticker2
             new = self.last_trade_shares_ticker2 + diff
-            self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
-            send_email("Fixed unsettled pair trade to size 0 " + str(self.ticker2))
+            self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
+            print("Fixed unsettled pair trade to size 0 " + str(self.ticker2))
         else:
-            ticker2_quantity = float(open_position.loc[open_position.symbol == self.ticker2, "quantity"])
-            diff = ticker2_quantity - self.outstanding_shares_ticker2
+            # broker_quantity2 = float(open_position.loc[open_position.symbol == self.ticker2, "quantity"])
+            ticker2_quantity = self.strategy_sizes[1]
+            diff = ticker2_quantity - self.previous_shares_ticker2
             new = self.last_trade_shares_ticker2 + diff
             if self.outstanding_shares_ticker2 != ticker2_quantity:
                 self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
                 send_email("Fixed unsettled pair trade to match size " + str(self.ticker2))
+        self.get_log()

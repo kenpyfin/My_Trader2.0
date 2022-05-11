@@ -79,7 +79,7 @@ def fix_unsettled_trade_update(ticker, target_size):
     diff = target_size - sum_size
 
     mongod = mongo("trade_log",ticker)
-    mongod.conn.table.update_one({"TimeStamp":ID},{"$set":{"size":last_size+diff}})
+    mongod.conn.table.update_one({"TimeStamp":ID},{"$set":{"size":float(last_size+diff)}})
 
 
     
@@ -156,27 +156,27 @@ def get_trade_log(ticker,database = "trade_log"):
         result = pd.DataFrame()
     return result 
 
-def get_pair_open_opsition(database = "pair_trade_log"): 
-    mongod = mongo(database)
-    working = mongod.conn.db.list_collection_names()
-    sent = []
-    
-    for i in working:
-        temp = get_pair_trade_log(i)
-        if len(temp) > 0 and temp["size1"].sum() != 0:
-            sent.append(i)
-   
-    return sent   
-
-def get_pair_trade_log(ticker_combo,database = "pair_trade_log"):
-
-    mongod = mongo(database,ticker_combo)
-    try:
-        result = pd.DataFrame(mongod.conn.table.find().sort("TimeStamp",-1))
-    except Exception as e:
-        print (e)
-        result = pd.DataFrame()
-    return result
+# def get_pair_open_opsition(database = "pair_trade_log"):
+#     mongod = mongo(database)
+#     working = mongod.conn.db.list_collection_names()
+#     sent = []
+#
+#     for i in working:
+#         temp = get_pair_trade_log(i)
+#         if len(temp) > 0 and temp["size1"].sum() != 0:
+#             sent.append(i)
+#
+#     return sent
+#
+# def get_pair_trade_log(ticker_combo,database = "pair_trade_log"):
+#
+#     mongod = mongo(database,ticker_combo)
+#     try:
+#         result = pd.DataFrame(mongod.conn.table.find().sort("TimeStamp",-1))
+#     except Exception as e:
+#         print (e)
+#         result = pd.DataFrame()
+#     return result
 
 
 def log_pair_trade(ticker1,ticker2,size1,size2, price1,price2 , database = "pair_trade_log"):

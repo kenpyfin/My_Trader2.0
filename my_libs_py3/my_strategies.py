@@ -26,13 +26,8 @@ def mean_reversion(stock,method,usr_input = None, robinhood = None,past_days = 9
 
         #***************************************
 
-
-
         stock = stock.upper()
-    
-    
-    
-    
+
         if robinhood == None and method == "minute":
             print ("Please feed a logined Robinhood Instance")
             return

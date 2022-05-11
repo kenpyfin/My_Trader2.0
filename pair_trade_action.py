@@ -14,24 +14,16 @@ def get_not_shortables():
 def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
     today_trade = self_pair_trade(ticker1,ticker2,method = "realtimeday",cash = cash).iloc[-1]
 
-    ticker_combo = ticker1+"_"+ticker2
-    log = get_pair_trade_log(ticker_combo)
+    # ticker_combo = ticker1+"_"+ticker2
+    myLog = pair_trade_log(ticker1,ticker2)
 
     # day_diff = log["TimeStamp"].astimezone(mytz) - datetime.now(mytz)
 
     new_size1 = today_trade["size1"]
     new_size2 = today_trade["size2"]
 
-    if len(log) == 0:
-        current_size1 = 0
-        current_size2 = 0
-        if new_size1 == 0 or new_size2 == 0:
-            print("One of the stock has 0 in size. We don't trade one stock.")
-            return None
-    else:
-        # log = log.iloc[0]
-        current_size1 = log["size1"].sum()
-        current_size2 = log["size2"].sum()
+    current_size1 = myLog.outstanding_shares_ticker1
+    current_size2 = myLog.outstanding_shares_ticker2
 
     trade_size1 = new_size1 - current_size1
     trade_size2 = new_size2 - current_size2
@@ -143,13 +135,15 @@ def pair_trade_top():
 
 def flat_position_by_days(ticker1,ticker2,days=7):
     try:
-        tradeLog = mongo("pair_trade_log", f"{ticker1}_{ticker2}")
-        myLog = pd.DataFrame(tradeLog.conn.table.find())
+        myLog = pair_trade_log(ticker1,ticker2)
+        # tradeLog = mongo("pair_trade_log", f"{ticker1}_{ticker2}")
+        # myLog = pd.DataFrame(tradeLog.conn.table.find())
         ## It's negative here
-        total_size1 = -myLog["size1"].sum()
-        total_size2 = -myLog["size2"].sum()
+        total_size1 = -myLog.outstanding_shares_ticker1
+        total_size2 = -myLog.outstanding_shares_ticker2
 
-        lastTrade = myLog.sort_values("TimeStamp", ascending=True).iloc[-1]["TimeStamp"]
+        # lastTrade = myLog.sort_values("TimeStamp", ascending=True).iloc[-1]["TimeStamp"]
+        lastTrade = myLog.last_trade_at
 
         td_trade = order_equity(order_type.LIMIT)
         if datetime.now(tz=lastTrade.tz)-lastTrade > timedelta(days=days):
@@ -167,7 +161,7 @@ def flat_position_by_days(ticker1,ticker2,days=7):
                                title="!Important! Cancel Order Failed" % orderid)
                 raise Exception("{ticker2} short not filled for \
                         {ticker1} and {ticker2} for a flat action".format(ticker1=ticker1,ticker2=ticker2))
-            log_pair_trade(myLog.iloc[0].Ticker1, myLog.iloc[0].Ticker2,total_size1 , total_size2, None,
+            pair_trade_log.log_pair_trade(ticker1, ticker2,total_size1 , total_size2, None,
                    None)
             return "flatted"
     except Exception as e:
@@ -186,10 +180,9 @@ def pair_trade_action_main():
     for ticker1, ticker2 in zip(candid.Ticker_1,candid.Ticker_2):
         pair_trade_action(ticker1,ticker2,cash=TRADE_CASH)
     ## position adjustment
-    pos = get_pair_open_opsition()
+    pos = pair_trade_log.get_pair_open_position()
     for p in pos:
-        p_log = get_pair_trade_log(p)
-        ticker1 = p_log.loc[0,"Ticker1"]
-        ticker2 = p_log.loc[0,"Ticker2"]
+        ticker1 = p[0]
+        ticker2 = p[1]
         if flat_position_by_days(ticker1,ticker2) != "flatted":
             pair_trade_action(ticker1, ticker2, close_action=True)
