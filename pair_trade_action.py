@@ -104,7 +104,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
     except Exception as e:
         send_email(str(e),title="!Important! Pair Trade Place Order Error for {ticker1} and {ticker2}".format(ticker1=ticker1,ticker2=ticker2))
 
-def pair_trade_smaple():
+def pair_trade_sample():
     mongod = mongo("all_symbol","pair_trade_sharp_2021_500")
     candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio":{"$exists":True}}))
     top_return = candid.describe().loc["75%","Avg_Return"]
@@ -116,19 +116,26 @@ def pair_trade_smaple():
     ]
 
     candid = pd.DataFrame(mongod.conn.table.aggregate(pipeline))
+    candid = candid.drop_duplicates("Ticker_1").drop_duplicates("Ticker_2")
+    candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
 
-    return candid  
+    return candid
 
 def pair_trade_top():
-    mongod = mongo("all_symbol","pair_trade_sharp_2021_500")
-    candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio":{"$exists":True},
-                                                  "Ticker_1":{"$nin":get_not_shortables()},"Ticker_2":{"$nin":get_not_shortables()}}))
-    top_return = candid.describe().loc["75%","Avg_Return"]
-    top_sharp = candid.describe().loc["75%","Sharp_Ratio"]
+    mongod = mongo("all_symbol", "pair_trade_sharp_2021_500")
+    candid = pd.DataFrame(mongod.conn.table.find({"Sharp_Ratio": {"$exists": True},
+                                                  "Ticker_1": {"$nin": get_not_shortables()},
+                                                  "Ticker_2": {"$nin": get_not_shortables()}}))
+    top_return = candid.describe().loc["75%", "Avg_Return"]
+    top_sharp = candid.describe().loc["75%", "Sharp_Ratio"]
 
-    candid = pd.DataFrame(mongod.conn.table.find({"End_Value":{"$gt":500},
-                                                  "Sharp_Ratio":{"$gt":top_sharp},
-                                                  "Avg_Return":{"$gt":top_return}}).sort("Sharp_Ratio",-1).limit(20))
+    candid = pd.DataFrame(mongod.conn.table.find({"End_Value": {"$gt": 500},
+                                                  "Sharp_Ratio": {"$gt": top_sharp},
+                                                  "Avg_Return": {"$gt": top_return}}).sort("Sharp_Ratio", -1).limit(35))
+    candid = candid.drop_duplicates("Ticker_1").drop_duplicates("Ticker_2")
+
+    candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
+
     return candid
 
 
