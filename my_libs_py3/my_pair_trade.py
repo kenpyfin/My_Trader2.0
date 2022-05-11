@@ -111,11 +111,13 @@ class pair_trade_log:
             self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
             print("Fixed unsettled pair trade to size 0 " + str(self.ticker1))
         else:
-            # broker_quantity1 = float(open_position.loc[open_position.symbol == self.ticker1, "quantity"])
+            broker_quantity1 = float(open_position.loc[open_position.symbol == self.ticker1, "quantity"])
             ticker1_quantity = self.strategy_sizes[0]
             diff = ticker1_quantity - self.outstanding_shares_ticker1
+
             new = self.last_trade_shares_ticker1 + diff
-            if self.outstanding_shares_ticker1 != ticker1_quantity:
+            ## only update when broker size is smaller than the outstanding size, and update to strategy suggested size
+            if self.outstanding_shares_ticker1 != broker_quantity1 and self.outstanding_shares_ticker1 > broker_quantity1:
                 self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
                 print("Fixed unsettled pair trade to match size " + str(self.ticker1))
 
@@ -125,11 +127,13 @@ class pair_trade_log:
             self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
             print("Fixed unsettled pair trade to size 0 " + str(self.ticker2))
         else:
-            # broker_quantity2 = float(open_position.loc[open_position.symbol == self.ticker2, "quantity"])
+            broker_quantity2 = float(open_position.loc[open_position.symbol == self.ticker2, "quantity"])
             ticker2_quantity = self.strategy_sizes[1]
             diff = ticker2_quantity - self.previous_shares_ticker2
+
             new = self.last_trade_shares_ticker2 + diff
-            if self.outstanding_shares_ticker2 != ticker2_quantity:
+            ## only update when broker size is smaller than the outstanding size, and update to strategy suggested size
+            if self.outstanding_shares_ticker2 != broker_quantity2 and self.outstanding_shares_ticker2 > broker_quantity2:
                 self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
                 send_email("Fixed unsettled pair trade to match size " + str(self.ticker2))
         self.get_log()
