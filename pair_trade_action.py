@@ -135,7 +135,7 @@ def pair_trade_top(scan_cash = TRADE_CASH):
 
     candid = pd.DataFrame(mongod.conn.table.find({"End_Value": {"$gt": scan_cash},
                                                   "Sharp_Ratio": {"$gt": top_sharp},
-                                                  "Avg_Return": {"$gt": top_return}}).sort("Sharp_Ratio", -1).limit(35))
+                                                  "Avg_Return": {"$gt": top_return}}).sort("Sharp_Ratio", -1).limit(50))
     candid = candid.drop_duplicates("Ticker_1").drop_duplicates("Ticker_2")
 
     candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
