@@ -119,7 +119,12 @@ def pair_trade_sample():
     candid = candid.drop_duplicates("Ticker_1").drop_duplicates("Ticker_2")
     candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
 
-    return candid
+    ## Not currently trading
+    openPosition = client.current_positions().symbol.to_list()
+    candid = candid[~candid.Ticker_1.isin(openPosition)]
+    candid = candid[~candid.Ticker_2.isin(openPosition)]
+
+    return candid.reset_index(drop=True)
 
 def pair_trade_top():
     mongod = mongo("all_symbol", "pair_trade_sharp_2021_500")
@@ -136,7 +141,12 @@ def pair_trade_top():
 
     candid = candid[~candid.Ticker_1.isin(candid.Ticker_2.to_list())]
 
-    return candid
+    ## Not currently trading
+    openPosition =  client.current_positions().symbol.to_list()
+    candid = candid[~candid.Ticker_1.isin(openPosition)]
+    candid = candid[~candid.Ticker_2.isin(openPosition)]
+
+    return candid.reset_index(drop=True)
 
 
 
