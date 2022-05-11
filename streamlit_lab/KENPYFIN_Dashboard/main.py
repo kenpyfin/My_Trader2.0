@@ -1,6 +1,9 @@
 import streamlit as st
 import utils as utl
-from views import screener,portfolio,market,options,configuration
+import sys,os
+sys.path.append("/home/ken/airflowProd/notebook/My_Trader")
+from my_libs_py3 import my_trader
+from views import screener,portfolio,market,stats_lookup,options,configuration
 
 
 
@@ -17,6 +20,8 @@ def navigation():
         portfolio.load_view()
     elif route == "market":
         market.load_view()
+    elif route == "stats_lookup":
+        stats_lookup.load_view()
     elif route == "options":
         options.load_view()
     elif route == "configuration":
@@ -24,5 +29,13 @@ def navigation():
     elif route == None:
         screener.load_view()
 
+def tool_sidebar():
+    with st.sidebar:
+        ticker = st.text_input("Ticker","AAPL")
+        st.write(my_trader.beta([ticker])[0])
+        pass
+
+
 if __name__ == "__main__":
     navigation()
+    tool_sidebar()
