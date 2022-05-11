@@ -122,9 +122,9 @@ class pair_trade_log:
             ## only update when broker size is smaller than the outstanding size, and update to strategy suggested size
             if self.outstanding_shares_ticker1 != broker_quantity1:
                 habitica.create_a_todo("Unmatch Size for pair trade " + str(self.ticker1))
-                if np.abs(self.outstanding_shares_ticker1) > np.abs(broker_quantity1):
-                    self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
-                    print("Fixed unsettled pair trade to match size " + str(self.ticker1))
+                # if np.abs(self.outstanding_shares_ticker1) > np.abs(broker_quantity1):
+                #     self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size1": new}})
+                #     print("Fixed unsettled pair trade to match size " + str(self.ticker1))
 
         if self.ticker2 not in all_tickers:
             diff = 0 - self.outstanding_shares_ticker2
@@ -141,7 +141,7 @@ class pair_trade_log:
             ## only update when broker size is smaller than the outstanding size, and update to strategy suggested size
             if self.outstanding_shares_ticker2 != broker_quantity2:
                 habitica.create_a_todo("Unmatch Size for pair trade " + str(self.ticker2))
-                if np.abs(self.outstanding_shares_ticker2) > np.abs(broker_quantity2):
-                    self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
-                    send_email("Fixed unsettled pair trade to match size " + str(self.ticker2))
+                # if np.abs(self.outstanding_shares_ticker2) > np.abs(broker_quantity2):
+                #     self.tradeLog.conn.table.update_one({"TimeStamp": ID}, {"$set": {"size2": new}})
+                #     send_email("Fixed unsettled pair trade to match size " + str(self.ticker2))
         self.get_log()
