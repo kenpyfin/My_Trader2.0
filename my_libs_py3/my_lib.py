@@ -46,6 +46,14 @@ pd.options.display.float_format = '{:,.4f}'.format
 ## Must use full path for CRONTAB to work
 ############################################
 
+
+def read_json(filepath):
+    read = []
+    with open(filepath, "r") as f:
+        read.append(f.readlines())
+    read = "".join(read[0]).replace("\n"," ")
+    return json.loads(read)
+
 if os.getcwd() == "/opt/airflow":
     home_dir="/opt/airflow/"
 else:
@@ -77,12 +85,6 @@ mytz = pytz.timezone("US/Pacific")
 
 
 
-def read_json(filepath):
-    read = []
-    with open(filepath, "r") as f:
-        read.append(f.readlines())
-    read = "".join(read[0]).replace("\n"," ")
-    return json.loads(read)
 
 
 def read_mongo_time(x, timezone = "US/Pacific"):
