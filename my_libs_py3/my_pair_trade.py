@@ -8,7 +8,7 @@ from .fmp import *
 from .TD_Order import *
 from .my_trader import *
 from .habitica import habiticaImp
-
+from .my_lib import TRADE_CASH
 
 
 class pair_trade_log:

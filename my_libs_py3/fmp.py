@@ -2,10 +2,11 @@ from urllib.request import urlopen
 import pandas as pd
 import requests as r
 from datetime import datetime, timedelta
+import json
 
 api_key = 'f49024a02ed51582a55c94a9485223c7'
-url_root = 'https://fmpcloud.io/api/v3/'
-# url_root = 'https://financialmodelingprep.com/api/v3/'
+# url_root = 'https://fmpcloud.io/api/v3/'
+url_root = 'https://financialmodelingprep.com/api/v3/'
 # api_key = '33cce9faf750236e31fb00b145d1e658'
   
 def get_urlroot():
@@ -181,7 +182,7 @@ def income_statement(ticker, period = 'annual', ftype = 'full'):
     data = response.read().decode("utf-8")
     return safe_read_json(data)
 
-def cash_flow_statement(ticker, period = 'annual', ftype = 'full'):
+def cash_flow_statement(ticker, period = 'annual', ftype = 'full', limit = 20):
     """Cash Flow Statement API from https://fmpcloud.io/documentation#cashFlowStatement
     
     Input:
@@ -206,10 +207,10 @@ def cash_flow_statement(ticker, period = 'annual', ftype = 'full'):
     except KeyError:
         raise KeyError('Cash Flow Statement type not correct')
         
-    url = urlroot + typeurl + ticker.upper() + "?" + "period=" + period + "&apikey=" + apikey
+    url = urlroot + typeurl + ticker.upper() + "?" + "period=" + period + "&limit=" + str(limit) + "&apikey=" + apikey
     response = urlopen(url)
     data = response.read().decode("utf-8")
-    return safe_read_json(data)
+    return pd.DataFrame(json.loads(data))
 
 def financial_ratios(ticker, period = 'annual', ttm = False):
     """Financial Ratios API from https://fmpcloud.io/documentation#financialRatios
