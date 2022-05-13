@@ -33,7 +33,8 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
 
         ## need to trade the short sell first to test whether it's shortable or not
         ## check signal
-        if (trade_size1 != 0 or trade_size2 != 0) and (now_cash>TRADE_CASH or close_action):
+        ## we need to exclude pair trade candidates that have only one leg
+        if (trade_size1 != 0 or trade_size2 != 0) and (now_cash>TRADE_CASH or close_action) and (new_size1 != 0 and new_size2 != 0):
             send_email("",title="!Important! Pair Trade Order Placing for %s and %s"%(ticker1,ticker2))
             ## if one of them trade_size == 0
             if trade_size1 == 0:
