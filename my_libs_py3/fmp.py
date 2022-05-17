@@ -3,11 +3,24 @@ import pandas as pd
 import requests as r
 from datetime import datetime, timedelta
 import json
+import os
 
-api_key = 'f49024a02ed51582a55c94a9485223c7'
+
+if os.getcwd() == "/opt/airflow":
+    home_dir="/opt/airflow/"
+else:
+    home_dir = "/home/ken/airflowProd/"
+    
+def readgateway(line):
+    with open(home_dir + "notebook/My_Trader/record-Copy1.txt") as file:
+        for i in range(line):
+            abc = file.readline() 
+    return abc
+
+api_key = readgateway(9)
 # url_root = 'https://fmpcloud.io/api/v3/'
 url_root = 'https://financialmodelingprep.com/api/v3/'
-# api_key = '33cce9faf750236e31fb00b145d1e658'
+
   
 def get_urlroot():
 

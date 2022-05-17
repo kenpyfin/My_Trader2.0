@@ -449,14 +449,9 @@ def get_price_data(tic_list,method,interval = "30min",robinhood= None,start_date
 #             i = i.decode("ascii")
             headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
-#             url = "https://cloud.iexapis.com/stable/stock/{}/intraday-prices".format(i)
-            url = "https://fmpcloud.io/api/v3/historical-price-full/{}".format(i)
-            payload = {
-                "apikey": "f49024a02ed51582a55c94a9485223c7" ,
-            }
-        
+            url = f"https://fmpcloud.io/api/v3/historical-price-full/{i}?from={start_date.date()}&to={end_date.date()}&apikey={readgateway(9)}"
             try:
-                re=r.get(url, params=payload,headers = headers)
+                re=r.get(url,headers = headers)
 
                 data = pd.DataFrame(re.json()["historical"])
                 data["Ticker"] = i
@@ -473,6 +468,7 @@ def get_price_data(tic_list,method,interval = "30min",robinhood= None,start_date
                 
                 data["Return"]= (data.Close.diff(1)/data.Close)
                 data["Fwd_Return"] = np.log(data.Close.shift(-1)/data.Close)
+                return data
                 price = price.append(data)
                 print(("Finished", i))
                 time.sleep(1)
@@ -561,7 +557,7 @@ def get_price_data(tic_list,method,interval = "30min",robinhood= None,start_date
 #             url = "https://cloud.iexapis.com/stable/stock/{}/intraday-prices".format(i)
             url = "https://fmpcloud.io/api/v3/historical-chart/{}/{}".format(interval,i)
             payload = {
-                "apikey": "f49024a02ed51582a55c94a9485223c7" ,
+                "apikey": readgateway(9) ,
             }
             try:
                 re=r.get(url, params=payload,headers = headers)

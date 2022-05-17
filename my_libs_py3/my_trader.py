@@ -980,21 +980,13 @@ def update_price(method = "day",test = False, interval = 1, freq = 'minutes',rob
 
 
 
-def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_minute",trade_mode = False):
-    
-
-    
-    # market_price=True
-    # exec_next_bar = False
-    # i = "DEN"
-    # j = "CMO"
+def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_minute"):
     
 
     robinhood = robingateway()
 
     price1 = get_price_data([i], method=method,robinhood=robinhood,back_day=back_day )
     price1 = price1.set_index("TimeStamp")
-    # price1.loc[price1.Open == 0,"Open"] = np.NaN
 
 
     price2 = get_price_data([j], method=method,robinhood=robinhood,back_day=back_day )
@@ -1011,14 +1003,19 @@ def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_mi
         price2 = get_price_data([j], method="realtimeday",robinhood=robinhood,back_day=back_day )
         price2 = price2.set_index("TimeStamp")
 
-
+    # Check if we get enough historical price lines
+    if len(price1) < int(back_day)/2 or len(price2) < int(back_day)/2:
+        raise Exception("Not enough of valid price history")
+    
+    
+        
     price_table = pd.DataFrame()
     #--------------------------------------------------------------
     #     return price1, price2
 
 
     price1.loc[:,"log_ret"] = log(price1.Close / price1.Close.shift(1))
-    price2.loc[:,"log_ret"] = log(price1.Close / price2.Close.shift(1))
+    price2.loc[:,"log_ret"] = log(price2.Close / price2.Close.shift(1))
 
 
     price1.loc[:, "log_ret_mv"] = price1.log_ret.rolling(window).mean()
@@ -1026,6 +1023,7 @@ def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_mi
 
     price1 = price1.fillna(method="bfill")
     price2 = price2.fillna(method="bfill")
+    
 
     price_table.loc[:,"relative"] = price1.log_ret_mv / price2.log_ret_mv
 
@@ -1049,6 +1047,7 @@ def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_mi
     price2.loc[:,"volatility"] = price2.log_ret.rolling(window).std()
 
     price_table["z_score"] =( price_table["relative"]-price_table["relative_mv"])/price_table.relative.std()
+    
     # up, mid , low = ta.BBANDS(price1.Close*price_table.hedge_ratio)
     up, mid , low = ta.BBANDS(price_table["z_score"])
 

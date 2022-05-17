@@ -11,7 +11,14 @@ def get_not_shortables():
     return list(set(not_shortables.symbol.to_list()))
 
 def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
-    today_trade = self_pair_trade(ticker1,ticker2,method = "realtimeday",cash = cash).iloc[-1]
+    try:
+        today_trade = self_pair_trade(ticker1,ticker2,method = "realtimeday",cash = cash).iloc[-1]
+    except Exception as e:
+        if "Not enough of valid price history" in str(e):
+            print(f"Not enough of valid price history for {ticker1}, {ticker2}")
+            return None
+        else:
+            raise Exception(e)
 
     # ticker_combo = ticker1+"_"+ticker2
     myLog = pair_trade_log(ticker1,ticker2)
