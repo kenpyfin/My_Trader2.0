@@ -3,6 +3,7 @@
 #Standard libraries
 import logging
 import warnings
+from datetime import datetime
 
 from enum import Enum
 
@@ -109,7 +110,7 @@ class Robinhood:
 
         self.device_token = id
 
-    def get_mfa_token(self, secret="PQZJUCVO4CNVUWYP"):
+    def get_mfa_token(self, secret):
         totp = pyotp.TOTP(secret)
         return totp.now()
 
@@ -117,7 +118,7 @@ class Robinhood:
     def login(self,
               username,
               password,
-              qr_code="PQZJUCVO4CNVUWYP"):
+              qr_code, auth_t, refresh_t):
         """Save and test login info for Robinhood accounts
         Args:
             username (str): username
@@ -129,129 +130,80 @@ class Robinhood:
         """
         self.username = username
         self.password = password
+        self.auth_token = auth_t
+        self.refresh_token = refresh_t
+        self.headers['Authorization'] = 'Bearer ' + self.auth_token.rstrip()
         
         if self.device_token == "":
                 self.GenerateDeviceToken()
-        
-        if qr_code:
-            self.qr_code = qr_code
-            payload = {
-                'password': self.password,
-                'username': self.username,
-                'grant_type': 'password',
-                'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
-                'scope': 'internal',
-                'device_token': self.device_token,
-                'mfa_code': self.get_mfa_token(self.qr_code)
-            }
-            
-            try:
-                res = self.session.post(endpoints.login(), data=payload, timeout=15)
-                data = res.json()
-                
-                if 'access_token' in data.keys() and 'refresh_token' in data.keys():
-                    self.auth_token = data['access_token']
-                    self.refresh_token = data['refresh_token']
-                    self.headers['Authorization'] = 'Bearer ' + self.auth_token
-                    return True
-                
-            except requests.exceptions.HTTPError:
-                raise RH_exception.LoginFailed()
+        if datetime.now().date().day == 1:
+            if qr_code:
+                self.qr_code = qr_code
+                payload = {
+                    'password': self.password,
+                    'username': self.username,
+                    'grant_type': 'password',
+                    'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
+                    'scope': 'internal',
+                    'device_token': self.device_token,
+                    'mfa_code': self.get_mfa_token(self.qr_code)
+                }
 
-        else:
-            in_2fa = False
-            payload = {
-                'password': self.password,
-                'username': self.username,
-                'grant_type': 'password',
-                'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
-                'expires_in': '86400',
-                'scope': 'internal',
-                'device_token': self.device_token,
-                'challenge_type': 'sms'
-            }
+                try:
+                    res = self.session.post(endpoints.login(), data=payload, timeout=15)
+                    data = res.json()
 
-            try:
-                res = self.session.post(endpoints.login(), data=payload, timeout=15)
-                response_data = res.json()
-                if self.challenge_id == "" and "challenge" in response_data.keys():
-                    self.challenge_id = response_data["challenge"]["id"]
-                self.headers["X-ROBINHOOD-CHALLENGE-RESPONSE-ID"] = self.challenge_id #has to add this to stay logged in
-                sms_challenge_endpoint = "https://api.robinhood.com/challenge/{}/respond/".format(self.challenge_id)
-                print("No 2FA Given")
-                print("SMS Code:")
-                self.sms_code = input()
-                challenge_res = {"response":self.sms_code}
-                res2 = self.session.post(sms_challenge_endpoint, data=challenge_res, timeout=15)
-                res2.raise_for_status()
-                #gets access token for final response to stay logged in
-                res3 = self.session.post(endpoints.login(), data=payload, timeout=15)
-                res3.raise_for_status()
-                data = res3.json()
+                    if 'access_token' in data.keys() and 'refresh_token' in data.keys():
+                        self.auth_token = data['access_token']
+                        self.refresh_token = data['refresh_token']
+                        self.headers['Authorization'] = 'Bearer ' + self.auth_token
+                        return True
 
-                if 'access_token' in data.keys() and 'refresh_token' in data.keys():
-                    self.auth_token = data['access_token']
-                    self.refresh_token = data['refresh_token']
-                    self.headers['Authorization'] = 'Bearer ' + self.auth_token
-                    return True
+                except requests.exceptions.HTTPError:
+                    raise RH_exception.LoginFailed()
 
-            except requests.exceptions.HTTPError:
-                raise RH_exception.LoginFailed()
+            else:
+                in_2fa = False
+                payload = {
+                    'password': self.password,
+                    'username': self.username,
+                    'grant_type': 'password',
+                    'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
+                    'expires_in': '86400',
+                    'scope': 'internal',
+                    'device_token': self.device_token,
+                    'challenge_type': 'sms'
+                }
+
+                try:
+                    res = self.session.post(endpoints.login(), data=payload, timeout=15)
+                    response_data = res.json()
+                    if self.challenge_id == "" and "challenge" in response_data.keys():
+                        self.challenge_id = response_data["challenge"]["id"]
+                    self.headers["X-ROBINHOOD-CHALLENGE-RESPONSE-ID"] = self.challenge_id #has to add this to stay logged in
+                    sms_challenge_endpoint = "https://api.robinhood.com/challenge/{}/respond/".format(self.challenge_id)
+                    print("No 2FA Given")
+                    print("SMS Code:")
+                    self.sms_code = input()
+                    challenge_res = {"response":self.sms_code}
+                    res2 = self.session.post(sms_challenge_endpoint, data=challenge_res, timeout=15)
+                    res2.raise_for_status()
+                    #gets access token for final response to stay logged in
+                    res3 = self.session.post(endpoints.login(), data=payload, timeout=15)
+                    res3.raise_for_status()
+                    data = res3.json()
+
+                    if 'access_token' in data.keys() and 'refresh_token' in data.keys():
+                        self.auth_token = data['access_token']
+                        self.refresh_token = data['refresh_token']
+                        self.headers['Authorization'] = 'Bearer ' + self.auth_token
+                        return True
+
+                except requests.exceptions.HTTPError:
+                    raise RH_exception.LoginFailed()
 
         return False
-    
-    def auth_method(self):
-        
-        if self.qr_code:
-            payload = {
-                'password': self.password,
-                'username': self.username,
-                'grant_type': 'password',
-                'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
-                'scope': 'internal',
-                'device_token': self.device_token,
-                'mfa_code': self.get_mfa_token(self.qr_code)
-            }
-            
-            try:
-                res = self.session.post(endpoints.login(), data=payload, timeout=15)
-                data = res.json()
-                
-                if 'access_token' in data.keys() and 'refresh_token' in data.keys():
-                    self.auth_token = data['access_token']
-                    self.refresh_token = data['refresh_token']
-                    self.headers['Authorization'] = 'Bearer ' + self.auth_token
-                    return True
-                
-            except requests.exceptions.HTTPError:
-                raise RH_exception.LoginFailed()
 
-        else:        
-            payload = {
-                'password': self.password,
-                'username': self.username,
-                'grant_type': 'password',
-                'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
-                'expires_in': '86400',
-                'scope': 'internal',
-                'device_token': self.device_token,
-            }
-
-            try:
-                res = self.session.post(endpoints.login(), data=payload, timeout=15)
-                res.raise_for_status()
-                data = res.json()
-
-                if 'access_token' in data.keys() and 'refresh_token' in data.keys():
-                    self.auth_token = data['access_token']
-                    self.refresh_token = data['refresh_token']
-                    self.headers['Authorization'] = 'Bearer ' + self.auth_token
-                    return True
-
-            except requests.exceptions.HTTPError:
-                raise RH_exception.LoginFailed()
-    
-        return False
     
     def logout(self):
         """Logout from Robinhood

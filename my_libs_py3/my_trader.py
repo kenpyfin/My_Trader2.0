@@ -368,10 +368,10 @@ class get_robinhood:
     #Note: Sometimes more than one instrument may be returned for a given stock symbol
 
     #login
-    def login(self,username,password):
+    def login(self,username,password, qr_code):
         #username=str(input("Please input username"))
         #password = str(input("Please input password"))
-        self.my_trader.login(username, password)
+        self.my_trader.login(username, password,qr_code, readgateway(11), readgateway(12))
 
     def logout(self):
         self.my_trader.logout()
@@ -1442,13 +1442,11 @@ def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_mi
     #     except:
 
 def robingateway():
-    
 
-   
     my_p = readgateway(3)
     robinhood = get_robinhood()
 
-    robinhood.login("lgyhz1234@gmail.com", my_p)
+    robinhood.login("lgyhz1234@gmail.com", my_p,readgateway(10))
     return robinhood
 
 
