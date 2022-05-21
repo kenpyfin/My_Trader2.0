@@ -17,7 +17,7 @@ def readgateway(line):
             abc = file.readline() 
     return abc
 
-api_key = readgateway(9)
+api_key = readgateway(9).rstrip()
 # url_root = 'https://fmpcloud.io/api/v3/'
 url_root = 'https://financialmodelingprep.com/api/v3/'
 
