@@ -9,7 +9,7 @@ from .my_libs_py3 import *
 ########################
 
 
-def fix_unsettel_trade():
+def fix_unsettle_trade():
 
     robinhood = robingateway()
 
