@@ -23,8 +23,6 @@ def cancel_order(orderid):
     else:
         time.sleep(3)
         code = client.cancelOrder(account_id,orderid).status_code
-        time.sleep(1)
-        code = client.cancelOrder(account_id,orderid).status_code
     if code == 200:
         return True
     else:
