@@ -44,7 +44,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
         if (trade_size1 != 0 or trade_size2 != 0) and (now_cash>TRADE_CASH or close_action) and (new_size1 != 0 and new_size2 != 0):
             send_email("",title="!Important! Pair Trade Order Placing for %s and %s"%(ticker1,ticker2))
             ## if one of them trade_size == 0
-            if trade_size1 == 0:
+            if trade_size1 == 0 and trade_size2 != 0:
                 orderid = td_trade.place(ticker2, trade_size2)
                 if get_order_by_id(orderid)["status"] != "REJECTED":
                     log_pair_trade(ticker1, ticker2, trade_size1, trade_size2, None, None)
@@ -56,7 +56,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     #                title="!Important! Cancel Order Failed" % orderid)
                     raise Exception("{ticker2} not filled for {ticker1} and {ticker2}".format(ticker1=ticker1,
                                                                                                     ticker2=ticker2))
-            elif trade_size2 == 0:
+            elif trade_size2 == 0 and trade_size1 != 0:
                 orderid = td_trade.place(ticker1, trade_size1)
                 if get_order_by_id(orderid)["status"] != "REJECTED":
                     log_pair_trade(ticker1, ticker2, trade_size1, trade_size2, None, None)
@@ -69,7 +69,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     raise Exception("{ticker1} not filled for {ticker1} and {ticker2}".format(ticker1=ticker1,
                                                                                                     ticker2=ticker2))
             ## short ticker1
-            elif trade_size1 < 0:
+            elif trade_size1 < 0 and trade_size2 != 0:
                 orderid = td_trade.place(ticker1,trade_size1)
                 if get_order_by_id(orderid)["status"] != "REJECTED":
                     time.sleep(45)
@@ -88,7 +88,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     raise Exception("{ticker1} probably not shortable for {ticker1} and {ticker2}".format(ticker1=ticker1,ticker2=ticker2))
             
             ## long ticker1
-            elif trade_size1 > 0:
+            elif trade_size1 > 0 and trade_size2 != 0:
                 orderid = td_trade.place(ticker2,trade_size2)
                 if get_order_by_id(orderid)["status"] != "REJECTED":
                     time.sleep(45)
@@ -105,6 +105,8 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                 else:
                     record_not_shortable(ticker2)
                     raise Exception("{ticker2} probably not shortable for {ticker1} and {ticker2}".format(ticker1=ticker1,ticker2=ticker2))
+            else:
+                raise Exception ("Probably one of the lags has trade_size == 0")
         ## no signal to trade   
         else:
             print("No trade or no cash, skiped for %s and %s"%(ticker1,ticker2))
@@ -210,3 +212,7 @@ def pair_trade_action_main():
         ticker2 = p[1]
         if flat_position_by_days(ticker1,ticker2) != "flatted":
             pair_trade_action(ticker1, ticker2, close_action=True)
+
+
+if __name__ == "__main__":
+    pair_trade_action_main()

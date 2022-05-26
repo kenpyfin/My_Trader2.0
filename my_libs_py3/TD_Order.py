@@ -238,12 +238,12 @@ class order_equity():
             elif quantity > 0:
                 instruction = instruction_type.BUY
             else:
-                print ("Quantity should not be zero")
-                raise
+                # print ("Quantity should not be zero")
+                raise Exception("Quantity should not be zero -- TD Trade")
         else:
             if quantity <= 0:
-                print ("When you feed instruction, Quantity should not be zero or less")
-                raise
+                # print ("When you feed instruction, Quantity should not be zero or less")
+                raise Exception("When you feed instruction, Quantity should not be zero or less -- TD Trade")
 
         order_dic = {
             "session": "NORMAL",
