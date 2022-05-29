@@ -31,6 +31,8 @@ import random
 import json
 import uuid
 
+from my_libs_py3.my_lib import gateway
+
 class Bounds(Enum):
     """Enum for bounds in `historicals` endpoint """
 
@@ -43,6 +45,20 @@ class Transaction(Enum):
 
     BUY = 'buy'
     SELL = 'sell'
+
+def write_to_record_copy(text_string: str, position: int):
+
+    with open(gateway, "r") as file:
+        abc = file.readlines()
+    abc = [x.rstrip()+"\n" for x in abc]
+
+    if position > len(abc):
+        abc.append(text_string)
+    else:
+        abc[position-1] = text_string
+    with open(gateway, "w") as file:
+        file.writelines(abc)
+    return True
 
 
 class Robinhood:
@@ -157,6 +173,10 @@ class Robinhood:
                         self.auth_token = data['access_token']
                         self.refresh_token = data['refresh_token']
                         self.headers['Authorization'] = 'Bearer ' + self.auth_token
+
+                        ##  Write the update token to file
+                        write_to_record_copy(self.auth_token,11)
+                        write_to_record_copy(self.refresh_token, 12)
                         return True
 
                 except requests.exceptions.HTTPError:

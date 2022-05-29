@@ -1430,7 +1430,8 @@ def readgateway(line):
     with open(gateway) as file:
         for i in range(line):
             abc = file.readline()
-    abc = remove_salt(abc)    
+    abc = remove_salt(abc)
+    abc = abc.rstrip()
     return abc
 
 
