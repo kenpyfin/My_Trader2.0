@@ -30,8 +30,9 @@ import re
 import random
 import json
 import uuid
+import os
 
-from ..my_trader import gateway
+
 
 class Bounds(Enum):
     """Enum for bounds in `historicals` endpoint """
@@ -47,6 +48,13 @@ class Transaction(Enum):
     SELL = 'sell'
 
 def write_to_record_copy(text_string: str, position: int):
+
+    if os.getcwd() == "/opt/airflow":
+        home_dir = "/opt/airflow/"
+    else:
+        home_dir = "/home/ken/airflowProd/"
+
+    gateway = home_dir + "notebook/My_Trader/record-Copy1.txt"
 
     with open(gateway, "r") as file:
         abc = file.readlines()
