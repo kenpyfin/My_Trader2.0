@@ -1,5 +1,5 @@
 
-from .my_libs_py3 import *
+from my_libs_py3 import *
 
 
 def daily_longterm_investment():
@@ -150,3 +150,7 @@ def daily_longterm_investment():
     except Exception as e:
         send_email("daily investment error " + str(e))
         raise Exception(e)
+
+
+if __name__ == "__main__":
+    daily_longterm_investment()

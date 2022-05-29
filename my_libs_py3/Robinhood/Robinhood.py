@@ -135,7 +135,7 @@ class Robinhood:
         self.device_token = id
 
     def get_mfa_token(self, secret):
-        totp = pyotp.TOTP(secret)
+        totp = pyotp.TOTP("FRJVMYUFEPH5JEEF")
         return totp.now()
 
 
@@ -160,22 +160,42 @@ class Robinhood:
         
         if self.device_token == "":
                 self.GenerateDeviceToken()
-        if datetime.now().date().day == 1:
+        if False:
             if qr_code:
                 self.qr_code = qr_code
+                headers = {
+                    'Accept': '*/*',
+                    'Origin': 'https://robinhood.com',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Host': 'api.robinhood.com',
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15',
+                    'Referer': 'https://robinhood.com/',
+                    # 'Accept-Encoding': 'gzip, deflate, br',
+                    'Connection': 'keep-alive',
+                    'X-Robinhood-API-Version': '1.431.4',
+                }
+
                 payload = {
                     'password': self.password,
                     'username': self.username,
                     'grant_type': 'password',
                     'client_id': "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS",
                     'scope': 'internal',
-                    'device_token': self.device_token,
+                    'device_token': "79b2145a-ae7c-4cca-afaa-b87f508c9b60",
+                    # 'al_pk': '7F867EDC-C71B-467F-B0A1-8DCBA5D4D2E3',
+                    # "al_token": "4686293d18e28f209.4766709302|r=us-west-2|metabgclr=transparent|guitextcolor=%23000000|metaiconclr=%23555555|meta=3|meta_height=456|meta_width=327|pk=7F867EDC-C71B-467F-B0A1-8DCBA5D4D2E3|at=40|sup=1|rid=40|atp=2|cdn_url=https%3A%2F%2Frobinhood-api.arkoselabs.com%2Fcdn%2Ffc|lurl=https%3A%2F%2Faudio-us-west-2.arkoselabs.com|surl=https%3A%2F%2Frobinhood-api.arkoselabs.com|smurl=https%3A%2F%2Frobinhood-api.arkoselabs.com%2Fcdn%2Ffc%2Fassets%2Fstyle-manager",
                     'mfa_code': self.get_mfa_token(self.qr_code)
                 }
-
+                # {"device_token": "79b2145a-ae7c-4cca-afaa-b87f508c9b60",
+                #  "client_id": "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS", "expires_in": 86400, "grant_type": "password",
+                #  "scope": "internal", "username": "lgyhz1234@gmail.com", "password": "5093945464lgyhz!@#",
+                #  "al_pk": "7F867EDC-C71B-467F-B0A1-8DCBA5D4D2E3",
+                #  "al_token": "6866293cc28d2d633.0013040002|r=us-west-2|metabgclr=transparent|guitextcolor=%23000000|metaiconclr=%23555555|meta=3|meta_height=456|meta_width=327|pk=7F867EDC-C71B-467F-B0A1-8DCBA5D4D2E3|at=40|sup=1|rid=40|atp=2|cdn_url=https%3A%2F%2Frobinhood-api.arkoselabs.com%2Fcdn%2Ffc|lurl=https%3A%2F%2Faudio-us-west-2.arkoselabs.com|surl=https%3A%2F%2Frobinhood-api.arkoselabs.com|smurl=https%3A%2F%2Frobinhood-api.arkoselabs.com%2Fcdn%2Ffc%2Fassets%2Fstyle-manager"}
+                print(self.get_mfa_token(self.qr_code))
                 try:
-                    res = self.session.post(endpoints.login(), data=payload, timeout=15)
+                    res = self.session.post(endpoints.login(), data=payload, headers=headers,  timeout=15)
                     data = res.json()
+                    print(data)
 
                     if 'access_token' in data.keys() and 'refresh_token' in data.keys():
                         self.auth_token = data['access_token']
@@ -185,7 +205,8 @@ class Robinhood:
                         ##  Write the update token to file
                         write_to_record_copy(self.auth_token,11)
                         write_to_record_copy(self.refresh_token, 12)
-                        return True
+                        print("written")
+                        return "Written to file"
 
                 except requests.exceptions.HTTPError:
                     raise RH_exception.LoginFailed()
