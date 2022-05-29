@@ -31,7 +31,7 @@ import random
 import json
 import uuid
 
-from my_libs_py3.my_lib import gateway
+from ..my_trader import gateway
 
 class Bounds(Enum):
     """Enum for bounds in `historicals` endpoint """
