@@ -179,18 +179,6 @@ def get_trade_log(ticker,database = "trade_log"):
 #     return result
 
 
-def log_pair_trade(ticker1,ticker2,size1,size2, price1,price2 , database = "pair_trade_log"):
-    timestamp = datetime.now()
-    ticker = ticker1+"_"+ticker2
-    mongod = mongo(database,ticker)
-
-    upload_data = pd.DataFrame([{"TimeStamp":timestamp, "Ticker1":ticker1,"Ticker2":ticker2,"size1":size1,"size2":size2,"Price1":price1,"Price2":price2}])
-
-    mongod.conn.frame_to_mongo(upload_data)
-
-
-
-
 
 def vwap(ticker,method = "intraday", back_day = 1, return_table= False ):
     price = get_price_data([ticker],method=method,robinhood=robingateway(),back_day=back_day)
