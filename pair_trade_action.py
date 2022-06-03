@@ -47,7 +47,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
             if trade_size1 == 0 and trade_size2 != 0:
                 orderid = td_trade.place(ticker2, trade_size2)
                 if get_order_by_id(orderid)["status"] != "REJECTED":
-                    log_pair_trade(ticker1, ticker2, trade_size1, trade_size2, None, None)
+                    pair_trade_log.log_pair_trade(ticker1, ticker2, trade_size1, trade_size2, None, None)
                     send_email("Trade process done.",
                                title="!Important! Pair Trade Order Placed for %s and %s" % (ticker1, ticker2))
                 else:
@@ -59,7 +59,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
             elif trade_size2 == 0 and trade_size1 != 0:
                 orderid = td_trade.place(ticker1, trade_size1)
                 if get_order_by_id(orderid)["status"] != "REJECTED":
-                    log_pair_trade(ticker1, ticker2, trade_size1, trade_size2, None, None)
+                    pair_trade_log.log_pair_trade(ticker1, ticker2, trade_size1, trade_size2, None, None)
                     send_email("Trade process done.",
                                title="!Important! Pair Trade Order Placed for %s and %s" % (ticker1, ticker2))
                 else:
@@ -76,7 +76,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     if get_order_by_id(orderid)["status"] == "FILLED":
                         orderid = td_trade.place(ticker2,trade_size2)
                         if get_order_by_id(orderid)["status"] != "REJECTED":
-                            log_pair_trade(ticker1,ticker2,trade_size1,trade_size2,None,None)
+                            pair_trade_log.log_pair_trade(ticker1,ticker2,trade_size1,trade_size2,None,None)
                             send_email("Trade process done.",title="!Important! Pair Trade Order Placed for %s and %s"%(ticker1,ticker2))
                     else:
                         if not cancel_order(orderid):
@@ -95,7 +95,7 @@ def pair_trade_action(ticker1,ticker2,cash=TRADE_CASH,close_action=False):
                     if get_order_by_id(orderid)["status"] == "FILLED":
                         orderid = td_trade.place(ticker1,trade_size1)
                         if get_order_by_id(orderid)["status"] != "REJECTED":
-                            log_pair_trade(ticker1,ticker2,trade_size1,trade_size2,None,None)
+                            pair_trade_log.log_pair_trade(ticker1,ticker2,trade_size1,trade_size2,None,None)
                             send_email("Trade process done.",title="!Important! Pair Trade Order Placed for %s and %s"%(ticker1,ticker2))
                     else:
                         if not cancel_order(orderid):
