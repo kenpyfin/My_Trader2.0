@@ -136,7 +136,12 @@ class TDClient(object):
     
     def current_positions(self):
         my_position = []
-        my_position_json = self.accounts(positions=True)[str(self.accountIds[0])]["securitiesAccount"]["positions"]
+        my_position_json = self.accounts(positions=True)[str(self.accountIds[0])]["securitiesAccount"]
+        if "positions" in my_position_json:
+            my_position_json = my_position_json["positions"]
+        else:
+            new = {"symbol":[]}
+            return pd.DataFrame(new)
         for i in my_position_json:
             new = {}
             if i["shortQuantity"]>0:
