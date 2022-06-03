@@ -993,7 +993,7 @@ def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_mi
                 price2 = price2.dropna(subset=["Ticker"])
 
     # Check if we get enough historical price lines
-    if len(price1) < int(back_day)/2 or len(price2) < int(back_day)/2:
+    if len(price1) < int(back_day)/3 or len(price2) < int(back_day)/3:
         raise Exception("Not enough of valid price history")
     
     
