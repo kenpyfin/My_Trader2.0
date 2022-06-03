@@ -985,16 +985,15 @@ def self_pair_trade(i,j,cash = 2000,back_day = 360,window = 20,method = "self_mi
     if len(price2) != len(price1):
         for inx in price1.index:
             if inx not in price2.index:
-                price1.loc[inx,] = np.NaN
-                price1 = price1.dropna(subset=["_id"])
-
+                price1.loc[inx,:] = np.NaN
+                price1 = price1.dropna(subset=["Ticker"])
         for inx in price2.index:
             if inx not in price1.index:
-                price2.loc[inx,] = np.NaN
-                price2 = price2.dropna(subset=["_id"])
+                price2.loc[inx,:] = np.NaN
+                price2 = price2.dropna(subset=["Ticker"])
 
     # Check if we get enough historical price lines
-    if len(price1) < int(back_day)*2 or len(price2) < int(back_day)*2:
+    if len(price1) < int(back_day)/2 or len(price2) < int(back_day)/2:
         raise Exception("Not enough of valid price history")
     
     
