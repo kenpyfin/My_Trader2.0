@@ -1,5 +1,5 @@
 
-from my_libs_py3 import *
+from .my_libs_py3 import *
 
 
 def daily_longterm_investment():
