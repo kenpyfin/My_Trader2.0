@@ -97,10 +97,11 @@ def daily_longterm_investment():
                 quote = realtimequote(i).price.iloc[0]
                 size = np.ceil(money/quote)
                 # buy on low or buy on high
-                if quote < price_14.Close.mean() and quote > price_31.Close.mean() and quote > price_60.Close.mean():
-                    if robinhood.place_buy_bulk_checkup(ticker_list=[i],quantity_list=[size],skip_check= True) == "Trade Success!":
-                        log_trade(i,size, robinhood.get_last_price(i), strategy_name)
-                        send_email("Fundamental Cumulation Buy: %s"%i)
+                if len(price_14) > 0 and len(price_31) > 0 and len(price_60) > 0:
+                    if quote < price_14.Close.mean() and quote > price_31.Close.mean() and quote > price_60.Close.mean():
+                        if robinhood.place_buy_bulk_checkup(ticker_list=[i],quantity_list=[size],skip_check= True) == "Trade Success!":
+                            log_trade(i,size, robinhood.get_last_price(i), strategy_name)
+                            send_email("Fundamental Cumulation Buy: %s"%i)
 
 
         print("pass buy signal")
